@@ -1,0 +1,290 @@
+{
+"$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+"description": "The aim main of this interactive visualization is to explore the Irish Primary Schools and some factors related to them. The focus will be kept on the attributes Sex, Total Number of Students, County and Total Number of Schools in each County.",
+  "hconcat":[
+    {
+      "description": "This graph represents the total number of schools in each county in the form of stcaked bar graph. Three different colors represent three types of SEX namely boys, girls and mixed. Interaction in this graph is once you select a county, it highlights all details of that county in the other two graphs.",
+        "width":100,
+        "height":700,
+        "mark": "bar",
+        "data": {
+              "url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv"
+              },
+              "transform": [
+                {
+                  "filter": {
+                    "selection": "Selection_Interval"
+                    }
+                    },
+                    {
+                  "filter": {
+                    "selection": "Selection_Gender"
+                    }
+                    }
+               ],
+  "encoding": {
+    "x":{
+      "field": "*",
+      "type": "quantitative",
+      "aggregate":"count",
+      "axis":{"title": "Number of schools"}
+        },
+    "y": {
+      "field": "County",
+      "type": "nominal",
+      "title": null
+    },
+    "color": {
+					"field": "Sex",
+					"type": "nominal",
+					"scale": {
+						"domain": [
+							"Boys",
+							"Girls",
+							"Mixed"
+						],
+						"range": [
+							"#4dff4d",
+							"#c266ff",
+							"#4775d1"
+						]
+					}
+				},
+        "order": {
+					"field": "Sex",
+					"type": "nominal",
+					"aggregate": "count",
+					"sort": "descending"
+				},
+        "fillOpacity": {
+      "condition": {"selection": "Selection_County", "value": 1},
+      "value": 0.3
+    }
+      },
+          "selection": {
+          "highlight": {"type": "multi", "on":"mouseover"},
+				  "Selection_County": {
+					"type": "multi",
+					"encodings": [
+						"y"
+					]
+				}
+			}
+    },
+      {
+        "vconcat": [
+          {
+          "description" : "Second graph is a geocoded graph which display all the counties with two legends Sex and Total. They show which county has what types of schools and what is their total number.",
+            "width":400,
+            "height":600,
+            "data": {
+              "url": "https://raw.githubusercontent.com/colmr/vis_class/master/Ireland_custom_topjson.json",
+              "format": {
+          "type": "topojson",
+          "feature": "IRL_adm1"
+        }
+      },
+      "transform": [
+						{
+							"lookup": "id",
+							"from": {
+								"data": {
+									"url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv"
+								},
+								"key": "County",
+								"fields": [
+									"Population"
+								]
+							}
+						}
+					],
+            "layer": [
+              {
+                "mark": {
+                  "type": "geoshape",
+                  "stroke": "white",
+                  "fill":"#ccc"
+                        }
+              },
+              {
+                "data": {
+								"url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv"
+							},
+                "mark": "circle",
+                "transform": [
+								{
+									"filter": {
+										"selection": "Selection_Interval"
+									}
+								},
+								{
+									"filter": {
+										"selection": "Selection_Gender"
+									}
+								},
+								{
+									"filter": {
+										"selection": "Selection_County"
+									}
+								}
+							],
+              "selection": {
+								"Selection_Gender": {
+									"type": "multi",
+									"fields": ["Sex"],
+									"bind": "legend"
+								                    }
+							             },
+                "encoding": {
+                   "longitude": {
+                        "field": "Long",
+                        "type": "quantitative"
+                                },
+                    "latitude": {
+                        "field": "Lat",
+                        "type": "quantitative"
+                                },
+                    "color": {
+                      	"field": "Sex",
+      									"type": "nominal",
+      									"scale": {
+    										"domain": [
+  											"Boys",
+  											"Girls",
+  											"Mixed"
+              										],
+    										"range": [
+      											"#a3ff4d",
+    										  	"#b066ff",
+      											"#4763d1"
+            										]
+            									}
+            								},
+        		            "size": {
+                   		  "title": "Total",
+                        "field": "Total",
+                        "type": "quantitative",
+                        "scale": {
+                        "type": "threshold",
+                        "domain": [251, 501, 750],
+                        "range": [10, 100, 250, 400]
+                                 }
+                        }
+                      }
+                    }
+                  ]
+
+                },
+                {
+					"data": {
+						"url": "https://raw.githubusercontent.com/colmr/vis_class/master/primary_schools.csv"
+					},
+          "description": "Last graph seen at the bottom is the histogram which is used to represent the distribution of the schools with resoect to the number of students.",
+					"layer": [
+						{
+							"transform": [
+								{
+									"filter": {
+										"selection": "Selection_County"
+									}
+								},
+								{
+									"filter": {
+										"selection": "Selection_Gender"
+									}
+								}
+							],
+							"selection": {
+								"Selection_Interval": {
+									"type": "interval",
+									"encodings": [
+										"x"
+									]
+								}
+							},
+							"width": 400,
+							"height": 75,
+							"mark": {
+								"type": "bar"
+							},
+							"encoding": {
+								"x": {
+									"bin": {
+										"step": 20
+									},
+									"type": "quantitative",
+									"field": "Total"
+								},
+								"y": {
+									"type": "quantitative",
+									"aggregate": "count"
+								}
+							}
+						},
+						{
+							"width": 300,
+							"height": 100,
+							"mark": {
+								"type": "bar",
+								"color": "black"
+							},
+							"transform": [
+								{
+									"filter": {
+										"selection": "Selection_County"
+									}
+								},
+								{
+									"filter": {
+										"selection": "Selection_Gender"
+									}
+								},
+								{
+									"filter": {
+										"selection": "Selection_Interval"
+									}
+								}
+							],
+							"encoding": {
+								"x": {
+									"bin": {
+										"step": 20
+									},
+									"type": "quantitative",
+									"field": "Total",
+									"axis": {
+										"title": "Number of Students",
+										"titleFontSize": 14
+									}
+								},
+								"y": {
+									"type": "quantitative",
+									"aggregate": "count",
+									"axis": {
+										"title": "Schools",
+										"titleFontSize": 14
+									}
+								}
+							}
+						}
+					]
+				}
+      ]
+    }
+  ],
+  "title": {
+    "text": "Irish Primary School Explorer",
+    "anchor": "middle",
+    "fontSize":24
+           },
+ "config": {
+   "concat":{"spacing": 15},
+ "axis": {"labelFontSize":12,
+          "titleFontSize":14, 
+          "titlePadding":12},
+ "legend": {
+      "orient":"right",
+      "titleFontSize": 12,
+      "labelFontSize": 12}
+            }
+}
